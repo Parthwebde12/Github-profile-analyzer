@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from github_client import get_user
-
+from github_client import get_repos, get_user
 
 app = FastAPI()
 
@@ -43,3 +42,20 @@ async def profile(username: str):
         "created_at": user["created_at"],
         "html_url": user["html_url"],
     }
+
+@app.get("/api/repos/{username}")
+async def repos(username: str):
+    data = await get_repos(username)
+    return [
+        {
+            "name": r["name"],
+            "description": r["description"],
+            "html_url": r["html_url"],
+            "stars": r["stargazers_count"],
+            "forks": r["forks_count"],
+            "language": r["language"],
+            "updated_at": r["updated_at"],
+            "is_fork": r["fork"],
+        }
+        for r in data
+    ]
