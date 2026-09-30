@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 import ProfileCard from "@/components/ProfileCard";
 import RepoList from "@/components/RepoList";
 import StatsPanel from "@/components/StatsPanel";
@@ -15,6 +16,14 @@ async function fetchJson<T>(url: string): Promise<T> {
   return data;
 }
 
+function errorMessage(err: unknown): string {
+  // fetch() throws a TypeError when the server can't be reached at all
+  if (err instanceof TypeError) {
+    return "Can't reach the server. Make sure the backend is running.";
+  }
+  return err instanceof Error ? err.message : "Something went wrong";
+}
+
 export default function Home() {
   const [username, setUsername] = useState("");
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -26,7 +35,10 @@ export default function Home() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const name = username.trim();
-    if (!name) return;
+    if (!name) {
+      setError("Please enter a GitHub username.");
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -44,7 +56,7 @@ export default function Home() {
       setRepos(repoData.repos);
       setStats(repoData.stats);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not reach the server");
+      setError(errorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -56,12 +68,16 @@ export default function Home() {
         <h1 className="text-center text-3xl font-bold text-gray-900">
           GitHub Profile Analyzer
         </h1>
+        <p className="mt-2 text-center text-gray-500">
+          Enter a username to explore their profile, repositories and top
+          languages.
+        </p>
 
         <form onSubmit={handleSubmit} className="mt-8 flex gap-2">
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter a GitHub username"
+            placeholder="e.g. torvalds"
             className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
@@ -74,8 +90,16 @@ export default function Home() {
         </form>
 
         {error && (
-          <p className="mt-6 rounded-lg bg-red-50 p-4 text-red-700">{error}</p>
+          <p
+            role="alert"
+            className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700"
+          >
+            {error}
+          </p>
         )}
+
+        {loading && <LoadingSkeleton />}
+
         {profile && (
           <>
             <ProfileCard profile={profile} />

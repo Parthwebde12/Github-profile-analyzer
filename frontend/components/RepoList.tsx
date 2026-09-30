@@ -1,4 +1,12 @@
+import LanguageIcon from "@/components/LangIcon";
 import type { Repo } from "@/lib/types";
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export default function RepoList({ repos }: { repos: Repo[] }) {
   return (
@@ -14,13 +22,13 @@ export default function RepoList({ repos }: { repos: Repo[] }) {
           {repos.map((repo) => (
             <li
               key={repo.name}
-              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
             >
               <a
                 href={repo.html_url}
                 target="_blank"
                 rel="noreferrer"
-                className="break-words font-semibold text-blue-600 hover:underline"
+                className="wrap-break-word font-semibold text-blue-600 hover:underline"
               >
                 {repo.name}
               </a>
@@ -32,10 +40,16 @@ export default function RepoList({ repos }: { repos: Repo[] }) {
               <p className="mt-2 text-sm text-gray-600">
                 {repo.description ?? "No description."}
               </p>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
-                {repo.language && <span>{repo.language}</span>}
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
+                {repo.language && (
+                  <span className="flex items-center gap-1.5">
+                    <LanguageIcon language={repo.language} />
+                    {repo.language}
+                  </span>
+                )}
                 <span>★ {repo.stars}</span>
                 <span>Forks {repo.forks}</span>
+                <span>Updated {formatDate(repo.updated_at)}</span>
               </div>
             </li>
           ))}

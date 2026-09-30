@@ -1,4 +1,5 @@
 import type { RepoStats } from "@/lib/types";
+import LangIcon from "@/components/LangIcon";
 
 export default function StatsPanel({ stats }: { stats: RepoStats }) {
   const languageTotal = stats.languages.reduce((sum, l) => sum + l.count, 0);
@@ -31,7 +32,10 @@ export default function StatsPanel({ stats }: { stats: RepoStats }) {
               return (
                 <li key={lang.name}>
                   <div className="flex justify-between text-sm text-gray-700">
-                    <span>{lang.name}</span>
+                    <span className="flex items-center gap-2">
+                      <LangIcon language={lang.name} />
+                      {lang.name}
+                    </span>
                     <span>
                       {lang.count} {lang.count === 1 ? "repo" : "repos"} · {percent}%
                     </span>
