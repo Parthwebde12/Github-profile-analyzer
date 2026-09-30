@@ -20,3 +20,17 @@ export type Repo = {
   updated_at: string;
   is_fork: boolean;
 };
+
+export type LanguageStat = { name: string; count: number };
+
+export type RepoStats = {
+  total_repos: number;
+  original_repos: number;
+  forked_repos: number;
+  total_stars: number;
+  total_forks: number;
+  most_starred: { name: string; stars: number } | null;
+  languages: LanguageStat[];
+};
+
+export type ReposResponse = { repos: Repo[]; stats: RepoStats };

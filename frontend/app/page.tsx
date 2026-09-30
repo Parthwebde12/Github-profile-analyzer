@@ -3,7 +3,8 @@
 import { useState } from "react";
 import ProfileCard from "@/components/ProfileCard";
 import RepoList from "@/components/RepoList";
-import type { Profile, Repo } from "@/lib/types";
+import StatsPanel from "@/components/StatsPanel";
+import type { Profile, Repo, RepoStats, ReposResponse } from "@/lib/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -18,6 +19,7 @@ export default function Home() {
   const [username, setUsername] = useState("");
   const [profile, setProfile] = useState<Profile | null>(null);
   const [repos, setRepos] = useState<Repo[]>([]);
+  const [stats, setStats] = useState<RepoStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -30,15 +32,17 @@ export default function Home() {
     setError("");
     setProfile(null);
     setRepos([]);
+    setStats(null);
 
     try {
       const encoded = encodeURIComponent(name);
       const [profileData, repoData] = await Promise.all([
         fetchJson<Profile>(`${API_URL}/api/profile/${encoded}`),
-        fetchJson<Repo[]>(`${API_URL}/api/repos/${encoded}`),
+        fetchJson<ReposResponse>(`${API_URL}/api/repos/${encoded}`),
       ]);
       setProfile(profileData);
-      setRepos(repoData);
+      setRepos(repoData.repos);
+      setStats(repoData.stats);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not reach the server");
     } finally {
@@ -75,6 +79,7 @@ export default function Home() {
         {profile && (
           <>
             <ProfileCard profile={profile} />
+            {stats && <StatsPanel stats={stats} />}
             <RepoList repos={repos} />
           </>
         )}
