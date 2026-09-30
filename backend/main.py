@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from github_client import get_user
 
 
 app = FastAPI()
@@ -27,3 +28,18 @@ def hello(name: str, excited: bool = False):
     if excited:
         greeting += "!"
     return {"greeting": greeting}
+
+@app.get("/api/profile/{username}")
+async def profile(username: str):
+    user = await get_user(username)
+    return {
+        "username": user["login"],
+        "name": user["name"],
+        "avatar_url": user["avatar_url"],
+        "bio": user["bio"],
+        "followers": user["followers"],
+        "following": user["following"],
+        "public_repos": user["public_repos"],
+        "created_at": user["created_at"],
+        "html_url": user["html_url"],
+    }
