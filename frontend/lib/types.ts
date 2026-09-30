@@ -9,3 +9,14 @@ export type Profile = {
   created_at: string;
   html_url: string;
 };
+
+export type Repo = {
+  name: string;
+  description: string | null;
+  html_url: string;
+  stars: number;
+  forks: number;
+  language: string | null;
+  updated_at: string;
+  is_fork: boolean;
+};

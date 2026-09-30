@@ -2,13 +2,22 @@
 
 import { useState } from "react";
 import ProfileCard from "@/components/ProfileCard";
-import type { Profile } from "@/lib/types";
+import RepoList from "@/components/RepoList";
+import type { Profile, Repo } from "@/lib/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+async function fetchJson<T>(url: string): Promise<T> {
+  const res = await fetch(url);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail ?? "Something went wrong");
+  return data;
+}
 
 export default function Home() {
   const [username, setUsername] = useState("");
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [repos, setRepos] = useState<Repo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -20,14 +29,16 @@ export default function Home() {
     setLoading(true);
     setError("");
     setProfile(null);
+    setRepos([]);
 
     try {
-      const res = await fetch(
-        `${API_URL}/api/profile/${encodeURIComponent(name)}`
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail ?? "Something went wrong");
-      setProfile(data);
+      const encoded = encodeURIComponent(name);
+      const [profileData, repoData] = await Promise.all([
+        fetchJson<Profile>(`${API_URL}/api/profile/${encoded}`),
+        fetchJson<Repo[]>(`${API_URL}/api/repos/${encoded}`),
+      ]);
+      setProfile(profileData);
+      setRepos(repoData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not reach the server");
     } finally {
@@ -37,7 +48,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-12">
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-3xl">
         <h1 className="text-center text-3xl font-bold text-gray-900">
           GitHub Profile Analyzer
         </h1>
@@ -61,7 +72,12 @@ export default function Home() {
         {error && (
           <p className="mt-6 rounded-lg bg-red-50 p-4 text-red-700">{error}</p>
         )}
-        {profile && <ProfileCard profile={profile} />}
+        {profile && (
+          <>
+            <ProfileCard profile={profile} />
+            <RepoList repos={repos} />
+          </>
+        )}
       </div>
     </main>
   );
