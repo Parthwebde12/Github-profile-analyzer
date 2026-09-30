@@ -1,16 +1,23 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from github_client import get_repos, get_user
 from stats import build_stats
 
-app = FastAPI()
+app = FastAPI(title="GitHub Profile Analyzer API")
+
+# Comma-separated list, e.g. "http://localhost:3000,https://my-app.vercel.app"
+origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[o.strip() for o in origins],
     allow_methods=["GET"],
     allow_headers=["*"],
 )
+
 
 @app.get("/")
 def read_root():
@@ -21,13 +28,6 @@ def read_root():
 def health():
     return {"status": "ok"}
 
-
-@app.get("/api/hello/{name}")
-def hello(name: str, excited: bool = False):
-    greeting = f"Hello, {name}"
-    if excited:
-        greeting += "!"
-    return {"greeting": greeting}
 
 @app.get("/api/profile/{username}")
 async def profile(username: str):
@@ -43,6 +43,7 @@ async def profile(username: str):
         "created_at": user["created_at"],
         "html_url": user["html_url"],
     }
+
 
 @app.get("/api/repos/{username}")
 async def repos(username: str):

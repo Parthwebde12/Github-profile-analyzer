@@ -1,5 +1,6 @@
 import type { RepoStats } from "@/lib/types";
 import LangIcon from "@/components/LangIcon";
+import Stat from "@/components/Stat";
 
 export default function StatsPanel({ stats }: { stats: RepoStats }) {
   const languageTotal = stats.languages.reduce((sum, l) => sum + l.count, 0);
@@ -53,14 +54,5 @@ export default function StatsPanel({ stats }: { stats: RepoStats }) {
         </div>
       )}
     </section>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-lg bg-gray-50 p-3">
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-sm text-gray-500">{label}</p>
-    </div>
   );
 }

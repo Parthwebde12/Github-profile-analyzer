@@ -1,4 +1,5 @@
 import type { Profile } from "@/lib/types";
+import Stat from "@/components/Stat";
 
 export default function ProfileCard({ profile }: { profile: Profile }) {
   const joined = new Date(profile.created_at).toLocaleDateString("en-US", {
@@ -31,11 +32,3 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-lg bg-gray-50 p-3">
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-sm text-gray-500">{label}</p>
-    </div>
-  );
-}
